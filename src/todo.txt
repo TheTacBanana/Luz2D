@@ -1,0 +1,17 @@
+# TODO LIST
+
+Engine:
+    Finish ECS
+        RValue Components
+        Event System
+            Rendering Events
+            Tick Update Functions
+    Renderer
+        Sprite Renderer
+    Input System
+        Controller Support
+        Possible Input Queue?
+    Physics Manager
+        AABB Collisions
+        BB Collisions
+        SDF Collisions?
