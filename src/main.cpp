@@ -73,12 +73,9 @@ int main(){
     }
 
     auto player = global.gameState->ecs->NewObject();
-    player->add<ECTransform>();
-    player->add<ECRigidbody>();
-    player->add<ECSpriteRenderer>();
-
-    auto otherobject = global.gameState->ecs->NewObject();
-    otherobject->add<ECTransform>();
+    player->AddComponent<ECTransform>();
+    player->AddComponent<ECRigidbody>();
+    player->AddComponent<ECSpriteRenderer>();
 
     while (!global.platform->ShouldClose()){
         global.platform->StartFrame();

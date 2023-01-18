@@ -27,20 +27,15 @@ template<
 struct ComponentManager{
     ComponentManager() = default;
 
-    // Base Object Type
     struct Object : ObjBase{
         public:
             I id = 0;
             std::bitset<MaxComponents> signature{};
 
-            Object() {}
+            Object() = default;
             Object(T* parent, I id){
                 this->p = parent;
                 this->id = id;
-            }
-
-            inline operator I() const {
-                return this->id;
             }
 
             inline bool operator==(const Object &rhs) const {
@@ -51,24 +46,38 @@ struct ComponentManager{
                 return *this->p;
             }
             
-            /*
             template<typename C>
-            C* add(C &&component = C()){
-                //static_assert(std::is_base_of_v<CompBase, C>);
-                return p->AddComponent(this->id, std::forward<C>(component));
-            }
-            */
-            
-            template<typename C>
-            C* add(){
+            inline C* AddComponent(){
                 return p->template AddComponent<C>(id);
+            }
+
+            template<typename C>
+            inline C* GetComponent(){
+                return p->template GetComponent<C>(id);
+            }
+
+            template<typename C>
+            inline void RemoveComponent(){
+                p->template RemoveComponent<C>(id);
+            }
+
+            template<typename C>
+            inline C* RequireComponent(){
+                if (!HasComponent<C>()){
+                    return AddComponent<C>();
+                }
+                return GetComponent<C>();
+            }
+
+            template<typename C>
+            inline bool HasComponent(){
+                return p->template HasComponent<C>(id);
             }
 
         private:
             T* p;
     };
 
-    // Collection of Registered Objects
     struct Registry {
         std::array<Object, MaxEntities> objects {};
         std::vector<I> freeObjectIDS {};
@@ -85,23 +94,11 @@ struct ComponentManager{
                 freeObjectIDS.pop_back();
                 return returnedIndex;
             } else {
-                std::cout << "No Free Indexes" << std::endl;
+                std::cout << "[ No Free Indexes ]" << std::endl;
                 exit(0);
             }
         }
     };
-
-    Registry objectRegistry = Registry();
-
-    Object* NewObject(){
-        I index = objectRegistry.GetNextIndex();
-        objectRegistry.objects[index] = Object(static_cast<T*>(this), index);
-        return &objectRegistry.objects[index];
-    }
-
-    void DeleteObject(I index){
-        objectRegistry.objects[index].signature.reset();
-    }
 
     struct Whirlpool {
         struct ComponentPool {
@@ -139,29 +136,68 @@ struct ComponentManager{
             }
         }
 
-
         template<typename C>
         C* GetComponentAddress(int compID, I index){
             return static_cast<C*>(componentPools[compID]->get(index));
         }
-        
     };
 
+    Registry objectRegistry = Registry();
     Whirlpool componentWhirlpool = Whirlpool();
     
-    template <typename C>
+    Object* NewObject(){
+        I index = objectRegistry.GetNextIndex();
+        objectRegistry.objects[index] = Object(static_cast<T*>(this), index);
+        std::cout << "[ Object Created ]" << std::endl;
+        return &objectRegistry.objects[index];
+    }
+
+    void DeleteObject(I index){
+        Object& obj = objectRegistry.objects[index];
+        obj.signature.reset();
+        objectRegistry.freeObjectIDS.push_back(index);
+        std::cout << "[ Object Deleted ]" << std::endl;
+    }
+
+
+    template<typename C>
     C* AddComponent(I id){
         int compID = componentWhirlpool.GetComponentPoolIndex<C>();
         Object& obj = objectRegistry.objects[id];
 
-        if (!obj.signature[compID]){
-            C* pComponent = new (componentWhirlpool.GetComponentAddress<C>(compID, id)) C();
+        if (!HasComponent<C>(obj.id)){
+            C* component = new (componentWhirlpool.GetComponentAddress<C>(compID, id)) C();
             obj.signature.set(compID);
-            return pComponent;
-        } else {
-            std::cout << "[ Component already attatched ]" << std::endl;
-            exit(0);
+            std::cout << "[ Component Added ]" << std::endl;
+            return component;
+        } 
+        return GetComponent<C>(id);
+    }
+
+    template<typename C>
+    C* GetComponent(I id){
+        int compID = componentWhirlpool.GetComponentPoolIndex<C>();
+        Object& obj = objectRegistry.objects[id];
+
+        if (HasComponent<C>(obj.id)){
+            return componentWhirlpool.GetComponentAddress<C>(compID, id);
         }
+        return nullptr;
+    }
+
+    template<typename C>
+    void RemoveComponent(I id){
+        int compID = componentWhirlpool.GetComponentPoolIndex<C>();
+        Object& obj = objectRegistry.objects[id];
+        obj.signature.reset(compID);
+        std::cout << "[ Component Removed ]" << std::endl;
+    }
+
+    template<typename C>
+    bool HasComponent(I id){
+        int compID = componentWhirlpool.GetComponentPoolIndex<C>();
+        Object& obj = objectRegistry.objects[id];
+        return obj.signature[compID];
     }
 };
 
