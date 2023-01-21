@@ -4,7 +4,7 @@
 #include "spriterenderer.hpp"
 
 struct Renderer{
-
+    SpriteRenderer* spriteRenderer{nullptr};
 };
 
 #endif

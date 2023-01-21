@@ -13,7 +13,7 @@
 
 struct Shader {
     public:
-        unsigned int ID;
+        unsigned int ID{};
 
         Shader() = default;
 

@@ -67,10 +67,11 @@ class ResourceLoader{
     public:
         std::vector<ResourcePool*> resourcePools{};
 
-        std::string* resourcePath {nullptr};
+        std::string resourcePath {};
 
         void SetResourcePath(std::string path){
-            resourcePath = new std::string(std::experimental::filesystem::current_path().string() + "/" + path);
+            resourcePath = std::experimental::filesystem::current_path().string() + "/" + path;
+            std::cout << "[ New Resource Path: " << resourcePath << " ]" << std::endl;
         }
 
         template<typename T>
@@ -78,15 +79,15 @@ class ResourceLoader{
             int resourceID = GetResourcePoolID<T>();
 
             ResourceIndex id = resourcePools[resourceID]->GetID(stringIdentifier);
-            new (resourcePools[resourceID]->Get(id)) T(*resourcePath + path1);
+            new (resourcePools[resourceID]->Get(id)) T(resourcePath + path1);
         }
 
         template<typename T>
         void LoadResource(std::string stringIdentifier, std::string path1, std::string path2){
             int resourceID = GetResourcePoolID<T>();
-
+            
             ResourceIndex id = resourcePools[resourceID]->GetID(stringIdentifier);
-            new (resourcePools[resourceID]->Get(id)) T(*resourcePath + path1, *resourcePath + path2);
+            new (resourcePools[resourceID]->Get(id)) T(resourcePath + path1, resourcePath + path2);
         }
 
         template<typename T>
@@ -94,7 +95,7 @@ class ResourceLoader{
             int resourceID = GetResourcePoolID<T>();
 
             ResourceIndex id = resourcePools[resourceID]->GetID(stringIdentifier);
-            new (resourcePools[resourceID]->Get(id)) T(*resourcePath + path1, *resourcePath + path2, *resourcePath + path3);
+            new (resourcePools[resourceID]->Get(id)) T(resourcePath + path1, resourcePath + path2, resourcePath + path3);
         }
 
         template<typename T>
@@ -102,10 +103,11 @@ class ResourceLoader{
             int resourceID = GetResourceID<T>();
 
             if (resourcePools.size() <= resourceID){
-            resourcePools.resize(resourceID + 1, nullptr);
+                resourcePools.resize(resourceID + 1, nullptr);
             }
             if (resourcePools[resourceID] == nullptr){
                 resourcePools[resourceID] = new ResourcePool(sizeof(T));
+                std::cout << "[ New Resource Pool Created ]" << std::endl;
             }
 
             return resourceID;

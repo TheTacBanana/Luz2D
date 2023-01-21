@@ -13,7 +13,7 @@
 
 struct Texture{
     public:
-        int width, height;
+        int width{}, height{};
 
         Texture() = default;
 
@@ -40,7 +40,8 @@ struct Texture{
                 glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
                 glGenerateMipmap(GL_TEXTURE_2D);
             } else {
-                std::cout << "Failed to load texture" << std::endl;
+                std::cout << "Failed to load texture at: " << texPath << std::endl;
+                exit(0);
             }
             stbi_image_free(data);
         }
@@ -49,8 +50,12 @@ struct Texture{
             return texID;
         }
 
+        void Bind(){
+            glBindTexture(GL_TEXTURE_2D, texID);
+        }
+
     private:
-        unsigned int texID;
+        unsigned int texID{};
 
 };
 

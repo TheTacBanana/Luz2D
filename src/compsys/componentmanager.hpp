@@ -16,13 +16,12 @@ int GetComponentID(){
     return s_componentID;
 }
 
-template<
-         typename T, // For some Type T
+template<typename T, // For some Type T
          typename I, // With Index Type I
          typename ObjBase, // Obj Base Type
          typename CompBase, // Component Base Type
-         int      MaxComponents,
-         int      MaxEntities
+         int      MaxComponents, // Max Components
+         int      MaxEntities // Max Entitiies
          >
 struct ComponentManager{
     ComponentManager() = default;

@@ -22,7 +22,7 @@ struct Platform {
     public:
         unsigned int width = 1000, height = 800;
         GLFWwindow* window{nullptr};
-        DisplayMode mode{Windowed};
+        DisplayMode mode {Windowed};
 
         Platform(){
             InitGLFW(); 
@@ -100,7 +100,7 @@ struct Platform {
 
             window = glfwCreateWindow(width, height, "", NULL, NULL);
             if (window == NULL) {
-                std::cout << "Failed to create GLFW window" << std::endl;
+                std::cout << "[ Failed to create GLFW window ]" << std::endl;
                 glfwTerminate();
             }
 
@@ -116,13 +116,14 @@ struct Platform {
 
         void InitOpenGL(){
             if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
-                std::cout << "Failed to initialize GLAD" << std::endl;
+                std::cout << "[ Failed to initialize GLAD ]" << std::endl;
+                exit(0);
             }
 
             glEnable(GL_DEPTH_TEST);
             glEnable(GL_CULL_FACE);
 
-            glPolygonMode( GL_FRONT, GL_TRIANGLES );
+            glPolygonMode(GL_FRONT, GL_TRIANGLES);
         }
 };
 

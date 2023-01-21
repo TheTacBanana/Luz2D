@@ -11,6 +11,11 @@ struct Transform {
     glm::vec3 scale = glm::vec3(1.0);
     glm::vec3 rotation{};
 
+    Transform() = default;
+    Transform(glm::vec3 posIn){
+        position = posIn;
+    }
+
     inline glm::vec3 Forward(){
         return glm::normalize(glm::quat(glm::vec3(glm::radians(rotation.y), 
                                                     glm::radians(-rotation.x), 
@@ -33,11 +38,11 @@ struct Transform {
 
     glm::mat4 GetModelMatrix(){
         glm::mat4 modelMat = glm::mat4(1.0);
-        modelMat = glm::scale(modelMat, scale);
+        //modelMat = glm::scale(modelMat, scale);
         modelMat = glm::translate(modelMat, position);
-        modelMat = glm::rotate(modelMat, rotation.x, glm::vec3(1.0, 0.0, 0.0));
-        modelMat = glm::rotate(modelMat, rotation.y, glm::vec3(0.0, 1.0, 0.0));
-        modelMat = glm::rotate(modelMat, rotation.z, glm::vec3(0.0, 0.0, 1.0));
+        //modelMat = glm::rotate(modelMat, rotation.x, glm::vec3(1.0, 0.0, 0.0));
+        //modelMat = glm::rotate(modelMat, rotation.y, glm::vec3(0.0, 1.0, 0.0));
+        //modelMat = glm::rotate(modelMat, rotation.z, glm::vec3(0.0, 0.0, 1.0));
         return modelMat;
     }
 };

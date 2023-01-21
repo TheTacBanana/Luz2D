@@ -2,10 +2,12 @@
 #define ECS_H
 
 #include "componentmanager.hpp"
+//#include "../events/eventmanager.hpp"
 
 template <typename C>
-struct EntityComponent : EmptyType { };
-struct ECSCompTypeBase { };
+struct EntityComponent : EmptyType { 
+    
+};
 
 using EntityID = std::uint32_t;
 struct ECS : ComponentManager<ECS, 

@@ -5,10 +5,11 @@
 #include "res/resourceloader.hpp"
 #include "input/inputsystem.hpp"
 #include "gamestate.hpp"
-#include "comp/ecs.hpp"
+#include "compsys/ecs.hpp"
 #include "util/camera.hpp"
 
 #include "types/transform.hpp"
+#include "res/shader.hpp"
 #include "res/texture.hpp"
 
 #include <vector>
@@ -16,7 +17,7 @@
 
 Global global;
 struct ECTransform : EntityComponent<ECTransform>{
-    Transform transform;
+    Transform transform{};
 
     ECTransform() = default;
     ECTransform(Transform in){
@@ -45,48 +46,65 @@ struct ECSpriteRenderer : EntityComponent<ECSpriteRenderer> {
 };
 
 int main(){
-    {   // Global State Setup
+    // Global State Setup ====================================
         Platform platform;
         global.platform = &platform;
 
         InputSystem inputSystem;
         global.inputSystem = &inputSystem;
 
-        Renderer renderer;
-        global.renderer = &renderer;
+            // Renderer ========================
+            SpriteRenderer spriteRenderer;
+            Renderer renderer {&spriteRenderer};
+            global.renderer = &renderer;
+
+            //==================================
 
         Time time;
         global.time = &time;
 
         ResourceLoader resourceLoader;
         global.resourceLoader = &resourceLoader;
+
+            // Game State ======================
+            GameState gameState;
+            global.gameState = &gameState;
+
+            ECS ecs;
+            Camera camera;
+            gameState.ecs = &ecs;
+            gameState.gameCamera = &camera;
+
+            //==================================
+
+    // Global State Init =====================================
         global.resourceLoader->SetResourcePath("Resources/");
 
-        // Game State
-        GameState gameState;
-        global.gameState = &gameState;
+        global.renderer->spriteRenderer->Init();
 
-        ECS ecs;
-        Camera camera;
-        gameState.ecs = &ecs;
-        gameState.gameCamera = &camera;
-    }
-
+    //========================================================
+    
     auto player = global.gameState->ecs->NewObject();
     player->AddComponent<ECTransform>();
     player->AddComponent<ECRigidbody>();
     player->AddComponent<ECSpriteRenderer>();
 
+    global.resourceLoader->LoadResource<Texture>("tex", "Textures/tex.jpeg");
+    Texture* tex = global.resourceLoader->GetResource<Texture>("tex");
+
     while (!global.platform->ShouldClose()){
         global.platform->StartFrame();
 
+        global.renderer->spriteRenderer->DrawSprite(tex, glm::vec2(0, 0), glm::vec2(500,500), 0, glm::vec3(1.0));
+        
         if (global.inputSystem->GetKey(GLFW_KEY_ESCAPE))
             global.platform->Terminate();
+
         if (global.inputSystem->GetKeyDown(GLFW_KEY_F1))
             global.platform->SetDisplayMode(Fullscreen);
         if (global.inputSystem->GetKeyDown(GLFW_KEY_F2))
-            global.platform->SetDisplayMode(Windowed);      
-
+            global.platform->SetDisplayMode(Windowed);     
+        
         global.platform->EndFrame();
     }
     global.platform->Cleanup();
