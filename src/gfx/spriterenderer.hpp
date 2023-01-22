@@ -25,28 +25,18 @@ struct SpriteRenderer{
             InitRenderData();
         }
 
-        void DrawSprite(Texture* texture, glm::vec2 position, glm::vec2 size, float rotate, glm::vec3 color)
-        {
-            // prepare transformations
+        void DrawSprite(Texture* texture, Transform& transform, glm::vec3 colour = glm::vec3(1.0)){
             spriteShader->use();
-            glm::mat4 model = glm::mat4(1.0f);
-            model = glm::translate(model, glm::vec3(position, 0.0f));  // first translate (transformations are: scale happens first, then rotation, and then final translation happens; reversed order)
+            
+            float aspect = (float)texture->width / texture->height;
+            glm::mat4 prescale = glm::mat4(1.0);
+            prescale = glm::scale(prescale, glm::vec3(aspect, 1, 0));
 
-            model = glm::translate(model, glm::vec3(0.5f * size.x, 0.5f * size.y, 0.0f)); // move origin of rotation to center of quad
-            model = glm::rotate(model, glm::radians(rotate), glm::vec3(0.0f, 0.0f, 1.0f)); // then rotate
-            model = glm::translate(model, glm::vec3(-0.5f * size.x, -0.5f * size.y, 0.0f)); // move origin back
+            spriteShader->setMat4("model", transform.GetModelMatrix(prescale));
+            spriteShader->setMat4("view", global.gameState->gameCamera->GetViewMatrix());
+            spriteShader->setMat4("projection", global.gameState->gameCamera->GetOrthoMatrix());
 
-            model = glm::scale(model, glm::vec3(size, 1.0f)); // last scale
-
-            spriteShader->setMat4("model", model);
-
-            glm::mat4 projection = glm::ortho(0.0f, static_cast<float>(global.platform->width), 
-                                        static_cast<float>(global.platform->height), 0.0f, -1.0f, 1.0f);
-
-            spriteShader->setMat4("projection", projection);
-
-            // render textured quad
-            spriteShader->setVec3("spriteColor", color);
+            spriteShader->setVec3("spriteColour", colour);
 
             glActiveTexture(GL_TEXTURE0);
             texture->Bind();
@@ -63,14 +53,14 @@ struct SpriteRenderer{
             // configure VAO/VBO
             unsigned int VBO;
             float vertices[] = { 
-                // pos      // tex
-                0.0f, 1.0f, 0.0f, 1.0f,
-                1.0f, 0.0f, 1.0f, 0.0f,
-                0.0f, 0.0f, 0.0f, 0.0f, 
+                // pos              // tex
+                -0.5f,  0.5f, 0.0f, 0.0f, 0.0f,
+                -0.5f, -0.5f, 0.0f, 0.0f, 1.0f,
+                 0.5f,  0.5f, 0.0f, 1.0f, 0.0f,
             
-                0.0f, 1.0f, 0.0f, 1.0f,
-                1.0f, 1.0f, 1.0f, 1.0f,
-                1.0f, 0.0f, 1.0f, 0.0f
+                 0.5f,  0.5f, 0.0f, 1.0f, 0.0f,
+                -0.5f, -0.5f, 0.0f, 0.0f, 1.0f,
+                 0.5f, -0.5f, 0.0f, 1.0f, 1.0f
             };
 
             glGenVertexArrays(1, &quadVAO);
@@ -81,7 +71,9 @@ struct SpriteRenderer{
 
             glBindVertexArray(quadVAO);
             glEnableVertexAttribArray(0);
-            glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
+            glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+            glEnableVertexAttribArray(1);
+            glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
             glBindBuffer(GL_ARRAY_BUFFER, 0);  
             glBindVertexArray(0);
         }

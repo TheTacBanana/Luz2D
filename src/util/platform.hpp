@@ -63,6 +63,8 @@ struct Platform {
 
         void framebuffer_size_callback_impl(GLFWwindow* window, int width, int height){
             glViewport(0, 0, width, height);
+            this->width = width;
+            this->height = height;
         }
 
         void StartFrame(){
@@ -70,7 +72,7 @@ struct Platform {
             global.time->CalculateDeltaTime();
 
             // Clear Backround
-            glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+            glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         }
 
@@ -121,9 +123,9 @@ struct Platform {
             }
 
             glEnable(GL_DEPTH_TEST);
-            glEnable(GL_CULL_FACE);
+            //glEnable(GL_CULL_FACE);
 
-            glPolygonMode(GL_FRONT, GL_TRIANGLES);
+            glPolygonMode(GL_FRONT_AND_BACK, GL_TRIANGLES);
         }
 };
 

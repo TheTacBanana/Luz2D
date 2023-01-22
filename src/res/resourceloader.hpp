@@ -78,6 +78,8 @@ class ResourceLoader{
         void LoadResource(std::string stringIdentifier, std::string path1){
             int resourceID = GetResourcePoolID<T>();
 
+            std::cout << "[ Resource Loaded: " << stringIdentifier << " ]" << std::endl;
+
             ResourceIndex id = resourcePools[resourceID]->GetID(stringIdentifier);
             new (resourcePools[resourceID]->Get(id)) T(resourcePath + path1);
         }
@@ -85,6 +87,8 @@ class ResourceLoader{
         template<typename T>
         void LoadResource(std::string stringIdentifier, std::string path1, std::string path2){
             int resourceID = GetResourcePoolID<T>();
+
+            std::cout << "[ Resource Loaded: " << stringIdentifier << " ]" << std::endl;
             
             ResourceIndex id = resourcePools[resourceID]->GetID(stringIdentifier);
             new (resourcePools[resourceID]->Get(id)) T(resourcePath + path1, resourcePath + path2);
@@ -93,6 +97,8 @@ class ResourceLoader{
         template<typename T>
         void LoadResource(std::string stringIdentifier, std::string path1, std::string path2, std::string path3){
             int resourceID = GetResourcePoolID<T>();
+
+            std::cout << "[ Resource Loaded: " << stringIdentifier << " ]" << std::endl;
 
             ResourceIndex id = resourcePools[resourceID]->GetID(stringIdentifier);
             new (resourcePools[resourceID]->Get(id)) T(resourcePath + path1, resourcePath + path2, resourcePath + path3);
