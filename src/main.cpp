@@ -39,11 +39,20 @@ struct ECRigidbody : EntityComponent<ECRigidbody> {
 };
 
 struct ECSpriteRenderer : EntityComponent<ECSpriteRenderer> {
-    Texture* tex;
+    Texture* tex{};
 
-    ECSpriteRenderer() = default;
+    ECSpriteRenderer(){
+        global.gameState->ecs->renderEvent.Subscribe(this, &ECSpriteRenderer::Render);
+    }
+
     ECSpriteRenderer(Texture* tex){
         this->tex = tex;
+        global.gameState->ecs->renderEvent.Subscribe(this, &ECSpriteRenderer::Render);
+    }
+
+    void Render(){
+        global.renderer->spriteRenderer->DrawSprite(tex, *p->GetComponent<Transform>(id)
+);
     }
 };
 
@@ -84,22 +93,18 @@ int main(){
 
         global.renderer->spriteRenderer->Init();
 
+        global.gameState->gameCamera->transform.position = glm::vec3(0,0,10);
+
     //========================================================
     
-    /*
+    global.resourceLoader->LoadResource<Texture>("tex", "Textures/sprite.png"); 
+    Texture* tex = global.resourceLoader->GetResource<Texture>("tex");
+
     auto player = global.gameState->ecs->NewObject();
     player->AddComponent<ECTransform>();
     player->AddComponent<ECRigidbody>();
-    player->AddComponent<ECSpriteRenderer>();
-    */
-
-    global.resourceLoader->LoadResource<Texture>("tex", "Textures/alignment.png");
-    Texture* tex = global.resourceLoader->GetResource<Texture>("tex");
-
-    global.gameState->gameCamera->transform.position = glm::vec3(0,0,10);
-
-    Transform spriteTransform;
-    spriteTransform.scale = glm::vec3(3.0);
+    auto ecsr = player->AddComponent<ECSpriteRenderer>();
+    ecsr->tex = tex;
 
     while (!global.platform->ShouldClose()){
         global.platform->StartFrame();
@@ -108,14 +113,14 @@ int main(){
         if (global.inputSystem->GetKeyDown(GLFW_KEY_F1)) global.platform->SetDisplayMode(Fullscreen);
         if (global.inputSystem->GetKeyDown(GLFW_KEY_F2)) global.platform->SetDisplayMode(Windowed);     
 
-        float camSpeed = 20.0 * global.time->deltaTime;
+        float camSpeed = 10.0 * global.time->deltaTime;
         Transform& trans = global.gameState->gameCamera->transform;
         if (global.inputSystem->GetKey('A')) trans.position -= trans.Right() * camSpeed;
         if (global.inputSystem->GetKey('D')) trans.position += trans.Right() * camSpeed;
         if (global.inputSystem->GetKey('W')) trans.position += glm::vec3(0,1,0) * camSpeed;
         if (global.inputSystem->GetKey('S')) trans.position -= glm::vec3(0,1,0) * camSpeed;
 
-        global.renderer->spriteRenderer->DrawSprite(tex, spriteTransform);
+        global.platform->RenderEventQueue();
 
         global.platform->EndFrame();
     }

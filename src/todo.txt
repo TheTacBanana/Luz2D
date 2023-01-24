@@ -4,10 +4,9 @@ Engine:
     Finish ECS
         RValue Components
         Event System
-            Rendering Events
             Tick Update Functions
     Renderer
-        Sprite Renderer
+        Tile Map
     Input System
         Controller Support
         Possible Input Queue?

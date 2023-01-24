@@ -11,6 +11,8 @@
 
 #include "../input/inputsystem.hpp"
 #include "time.hpp"
+#include "../gamestate.hpp"
+#include "../compsys/ecs.hpp"
 
 enum DisplayMode{
     Fullscreen = 0,
@@ -76,6 +78,10 @@ struct Platform {
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         }
 
+        void RenderEventQueue(){
+            global.gameState->ecs->renderEvent.Publish();
+        }
+
         void EndFrame(){
             glfwSwapBuffers(global.platform->window);
             glfwPollEvents();
@@ -123,9 +129,12 @@ struct Platform {
             }
 
             glEnable(GL_DEPTH_TEST);
-            //glEnable(GL_CULL_FACE);
+            glEnable(GL_CULL_FACE);
+            //glDisable(GL_BLEND);
+            glEnable(GL_BLEND);
+            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-            glPolygonMode(GL_FRONT_AND_BACK, GL_TRIANGLES);
+            glPolygonMode(GL_FRONT, GL_FILL);
         }
 };
 

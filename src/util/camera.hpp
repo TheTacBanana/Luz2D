@@ -16,8 +16,6 @@ struct Camera{
     public:
         float nearClip = 0.0f;
         float farClip = 100.0f;
-        float cameraScale = 5.0f;
-
         float cameraHeight = 5.0f;
 
         Transform transform{};
@@ -32,9 +30,10 @@ struct Camera{
 
         glm::mat4 GetOrthoMatrix(){
             float aspect = (float)global.platform->width / global.platform->height;
-            aspect *= cameraHeight;
+            float halfHeight = cameraHeight / 2.0;
+            aspect *= halfHeight;
             
-            return glm::ortho(-aspect, aspect, -cameraHeight, cameraHeight, nearClip, farClip);
+            return glm::ortho(-aspect, aspect, -halfHeight, halfHeight, nearClip, farClip);
         }
 
         glm::mat4 GetViewMatrix(){
