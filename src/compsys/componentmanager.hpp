@@ -45,9 +45,9 @@ struct ComponentManager{
                 return *this->p;
             }
             
-            template<typename C>
-            inline C* AddComponent(){
-                return p->template AddComponent<C>(id);
+            template<typename C, class... Args>
+            inline C* AddComponent(Args&&... args){
+                return p->template AddComponent<C>(id, std::forward<Args>(args)...);
             }
 
             template<typename C>
@@ -151,6 +151,10 @@ struct ComponentManager{
         return &objectRegistry.objects[index];
     }
 
+    Object* GetObject(I index){
+        return &objectRegistry.objects[index];
+    }
+
     void DeleteObject(I index){
         Object& obj = objectRegistry.objects[index];
         obj.signature.reset();
@@ -159,14 +163,15 @@ struct ComponentManager{
     }
 
 
-    template<typename C>
-    C* AddComponent(I id){
+    template<typename C, class... Args>
+    C* AddComponent(I id, Args&&... args){
         int compID = componentWhirlpool.GetComponentPoolIndex<C>();
         Object& obj = objectRegistry.objects[id];
 
         if (!HasComponent<C>(obj.id)){
-            C* component = new (componentWhirlpool.GetComponentAddress<C>(compID, id)) C();
+            C* component = new (componentWhirlpool.GetComponentAddress<C>(compID, id)) C(std::forward<Args>(args)...);
             obj.signature.set(compID);
+            SetupComponent(component, id);
             std::cout << "[ Component Added ]" << std::endl;
             return component;
         } 
@@ -198,6 +203,8 @@ struct ComponentManager{
         Object& obj = objectRegistry.objects[id];
         return obj.signature[compID];
     }
+
+    virtual void SetupComponent(CompBase* comp, I index) = 0;
 };
 
 #endif

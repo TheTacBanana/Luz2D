@@ -4,6 +4,7 @@
 struct Platform;
 struct Renderer;
 struct Time;
+struct Random;
 struct ResourceLoader;
 struct InputSystem;
 
@@ -14,6 +15,7 @@ struct Global{
     InputSystem* inputSystem;
     Renderer* renderer;
     Time* time;
+    Random* random;
     
     ResourceLoader* resourceLoader;  
 

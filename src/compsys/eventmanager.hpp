@@ -1,3 +1,6 @@
+#ifndef EVENTMANAGER_H
+#define EVENTMANAGER_H
+
 #include <vector>
 #include "../global.hpp"
 
@@ -32,7 +35,7 @@ struct EventManager {
   	public:
 		std::vector<HandlerFunctionBase*> handlers{};
 
-		void Publish() {
+		virtual void Publish() {
 			for (auto& handler : handlers)
 				if (handler != nullptr) 
 					handler->Call();
@@ -43,3 +46,5 @@ struct EventManager {
 			handlers.push_back(new MemberFunctionHandler<T>(instance, memberFunction));
 		}
 };
+
+#endif

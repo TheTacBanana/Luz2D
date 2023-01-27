@@ -1,16 +1,15 @@
 # TODO LIST
 
-Engine:
-    Finish ECS
-        RValue Components
-        Event System
-            Tick Update Functions
-    Renderer
-        Tile Map
-    Input System
-        Controller Support
-        Possible Input Queue?
-    Physics Manager
-        AABB Collisions
-        BB Collisions
-        SDF Collisions?
+Issues? Perhaps? Hmmm?:
+Components dont take the same memory address when assigned over
+
+ECS:
+    Move to Reference rather than raw ptr
+Physics Manager:
+    Resolve Collisions when object spawned ontop of eachother
+Renderer:
+    Sprite adjustable origin position
+    Tile Map
+Input System:
+    Controller Support
+    Possible Input Queue?
