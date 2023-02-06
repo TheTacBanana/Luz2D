@@ -36,10 +36,6 @@ struct SpriteSheet{
                                      glm::ivec2(dx, dy));
                 }
             }
-
-            for (size_t i = 0; i < insertionOrder.size(); i++){
-                std::cout << insertionOrder[i] << std::endl;
-            }
         }
 
         //                                                       (Top Left)
@@ -65,7 +61,6 @@ struct SpriteSheet{
             }
             return stringMap[search];
         }
-        /*
 
         Sprite& operator[](int index){
             if (index > Size()){
@@ -74,10 +69,13 @@ struct SpriteSheet{
             }
             return stringMap[insertionOrder[index]];
         }
-        */
 
         int Size(){
             return insertionOrder.size();
+        }
+
+        void Bind(){
+            tex->Bind();
         }
 
     private:

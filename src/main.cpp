@@ -95,12 +95,14 @@ int main(){
     player->AddComponent<ECBoxCollider>();
     player->AddComponent<ECSpriteRenderer>(tex);
 
+    auto spritesheet = new SpriteSheet(tex);
+    spritesheet->FixedSlice(8, 8);
+
     auto tilemap = global.gameState->ecs->NewObject();
     auto tilemaptrans = tilemap->AddComponent<ECTransform>(glm::vec3(0, 0, -1.0));
-    auto tilemapcomp = tilemap->AddComponent<ECTileMap>();
+    auto tilemapcomp = tilemap->AddComponent<ECTileMap>(spritesheet);
 
-    auto spritesheet = SpriteSheet(tex);
-    spritesheet.FixedSlice(8, 8);
+    int index = 0;
     
     while (!global.platform->ShouldClose()){
         global.platform->StartFrame();
@@ -123,7 +125,8 @@ int main(){
         if (global.inputSystem->GetMouseButtonDown(0)){
             auto worldpos = global.gameState->gameCamera->ScreenPositionToWorldSpace(global.inputSystem->mouseAxis);
             GlobalCoord coord = PosToGlobalCoord(worldpos);
-            tilemapcomp->SetTile(coord, true);
+            tilemapcomp->SetTile(coord, (*spritesheet)[index]);
+            index = (index + 1) % spritesheet->Size();
         }
 
         // Lerp to Player Pos

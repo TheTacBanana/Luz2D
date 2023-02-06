@@ -1,15 +1,36 @@
 # TODO LIST
 
 Issues? Perhaps? Hmmm?:
-Components dont take the same memory address when assigned over
-
-ECS:
-    Move to Reference rather than raw ptr
-Physics Manager:
-    Resolve Collisions when object spawned ontop of eachother
-Renderer:
-    Sprite adjustable origin position
-    Tile Map
-Input System:
-    Controller Support
+    Components dont take the same memory address when assigned over
+    References rather than raw pointers
     Possible Input Queue?
+
+ECS and Event System:
+    Testing of ECS
+    Unsubscribe from events upon deconstruction
+
+Physics Manager:
+    Resolve Collisions better
+
+Renderer:
+    Rewrite SpriteRenderer to use Sprites instead of Textures
+    Sprite Origin
+    Animation:
+        Animated Sprites
+        State Machines
+    2D Lighting
+
+Input System:
+    Composite Axis
+    Controller Input
+
+UI System:
+    Images
+    Text
+    Interaction:
+        Push Buttons
+        Toggle Boxes 
+        Sliders
+
+File IO System:
+    Urrrrrr
