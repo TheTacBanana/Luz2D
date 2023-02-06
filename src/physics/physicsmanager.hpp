@@ -7,6 +7,8 @@
 #include "../components/ectransform.hpp"
 #include "../global.hpp"
 
+using PhysicsID = std::uint32_t;
+
 struct PhysicsManager{
     int resolveSteps = 16;
 
@@ -35,27 +37,42 @@ struct PhysicsManager{
                     glm::vec3 obj1dir = trans1->transform.position - rb1->prevPosition;
                     glm::vec3 obj2dir = trans2->transform.position - rb2->prevPosition;
 
-                    // Between 0 and 1
-                    float bestSolution = 0.0;
-                    float maxTested = 1.0;  
+                    trans1->transform.position = rb1->prevPosition;
+                    trans2->transform.position = rb2->prevPosition;
+                    
+                    if (!aabb1->Intersect(aabb2)) { // Collision
+                        // Between 0 and 1
+                        float bestSolution = 0.0;
+                        float maxTested = 1.0;
+            
+                        for (int i = 0; i < resolveSteps; i++){
+                            float tryThis = (bestSolution + maxTested) / 2.0;
 
-                    for (int i = 0; i < resolveSteps; i++){
-                        float tryThis = (bestSolution + maxTested) / 2.0;
+                            trans1->transform.position = rb1->prevPosition + obj1dir * tryThis;
+                            trans2->transform.position = rb2->prevPosition + obj2dir * tryThis;
 
-                        trans1->transform.position = rb1->prevPosition + obj1dir * tryThis;
-                        trans2->transform.position = rb2->prevPosition + obj2dir * tryThis;
-
-                        if (aabb1->Intersect(aabb2)){ // Failed
-                            maxTested = tryThis;
-                        } else {                      // Success
-                            bestSolution = tryThis;
+                            if (aabb1->Intersect(aabb2)){ // Failed to resolve
+                                maxTested = tryThis;
+                            } else {                      // Success new position
+                                bestSolution = tryThis;
+                            }
                         }
-                    }
+        
+                        trans1->transform.position = rb1->prevPosition + obj1dir * bestSolution;
+                        trans2->transform.position = rb2->prevPosition + obj2dir * bestSolution;
+                        rb1->velocity = glm::vec3(0.0);
+                        rb2->velocity = glm::vec3(0.0);
     
-                    trans1->transform.position = rb1->prevPosition + obj1dir * bestSolution;
-                    trans2->transform.position = rb2->prevPosition + obj2dir * bestSolution;
-                    rb1->velocity = glm::vec3(0.0);
-                    rb2->velocity = glm::vec3(0.0);
+                    } else { // Spawned in eachother
+                        obj1dir = glm::normalize(trans1->transform.position - trans2->transform.position);
+                        obj2dir = -obj1dir;
+
+                        rb1->velocity = obj1dir;
+                        rb2->velocity = obj2dir;
+
+                        rb1->PhysicsUpdate();
+                        rb2->PhysicsUpdate();
+                    }
                 }
             }
         }

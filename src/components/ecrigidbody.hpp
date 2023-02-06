@@ -25,18 +25,15 @@ struct ECRigidbody : EntityComponent {
     }
 
     void Init(){
-        global.gameState->ecs->physicsObjects.push_back(index);
-
         prevPosition = base->GetComponent<ECTransform>(index)->transform.position;
     }
 
     void PhysicsUpdate(){
-        if (useGravity)
-            acceleration = mass * gravity;
         velocity += acceleration / mass * global.time->deltaTime;
-        prevPosition = base->GetComponent<ECTransform>(index)->transform.position;
-        base->GetComponent<ECTransform>(index)->transform.position += velocity * global.time->deltaTime;
-        acceleration = glm::vec3(0);
+        auto transform = &base->GetComponent<ECTransform>(index)->transform;
+        prevPosition = transform->position;
+        transform->position += velocity * global.time->deltaTime;
+        acceleration = glm::vec3(0.0);
     }
 };
 

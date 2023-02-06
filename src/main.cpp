@@ -21,6 +21,9 @@
 #include "components/ecrigidbody.hpp"
 #include "components/ecspriterenderer.hpp"
 #include "components/ecaabbcollider.hpp"
+#include "components/ectilemap.hpp"
+
+#include "types/spritesheet.hpp"
 
 Global global;
 
@@ -76,8 +79,8 @@ int main(){
 
     //========================================================
     
-    global.resourceLoader->LoadResource<Texture>("tex", "Textures/crate.png"); 
-    Texture* tex = global.resourceLoader->GetResource<Texture>("tex");
+    global.resourceLoader->LoadResource<Texture>("tex", "Textures/crate.png");
+    auto tex = global.resourceLoader->GetResource<Texture>("tex");
 
     auto floor = global.gameState->ecs->NewObject();
     auto trans = floor->AddComponent<ECTransform>(glm::vec3(0, -5, 0));
@@ -86,15 +89,18 @@ int main(){
     floor->AddComponent<ECBoxCollider>(5, 0.5);
     floor->AddComponent<ECSpriteRenderer>(tex);
 
-    /*
-    for (size_t i = 0; i < 20; i++){
-        auto obj = global.gameState->ecs->NewObject();
-        obj->AddComponent<ECTransform>(glm::vec3(global.random->GetFloat(-5, 5), global.random->GetFloat(-5, 5), 0));
-        obj->AddComponent<ECRigidbody>();
-        obj->AddComponent<ECBoxCollider>();
-        obj->AddComponent<ECSpriteRenderer>(tex);
-    }
-    */
+    auto player = global.gameState->ecs->NewObject();
+    auto playertrans = player->AddComponent<ECTransform>();
+    auto playerrb = player->AddComponent<ECRigidbody>(false);
+    player->AddComponent<ECBoxCollider>();
+    player->AddComponent<ECSpriteRenderer>(tex);
+
+    auto tilemap = global.gameState->ecs->NewObject();
+    auto tilemaptrans = tilemap->AddComponent<ECTransform>(glm::vec3(0, 0, -1.0));
+    auto tilemapcomp = tilemap->AddComponent<ECTileMap>();
+
+    auto spritesheet = SpriteSheet(tex);
+    spritesheet.FixedSlice(8, 8);
     
     while (!global.platform->ShouldClose()){
         global.platform->StartFrame();
@@ -103,13 +109,7 @@ int main(){
         if (global.inputSystem->GetKeyDown(GLFW_KEY_F1)) global.platform->SetDisplayMode(Fullscreen);
         if (global.inputSystem->GetKeyDown(GLFW_KEY_F2)) global.platform->SetDisplayMode(Windowed);     
 
-        float camSpeed = 20.0 * global.time->deltaTime;
-        Transform& trans = global.gameState->gameCamera->transform;
-        if (global.inputSystem->GetKey('A')) trans.position -= trans.Right() * camSpeed;
-        if (global.inputSystem->GetKey('D')) trans.position += trans.Right() * camSpeed;
-        if (global.inputSystem->GetKey('W')) trans.position += glm::vec3(0,1,0) * camSpeed;
-        if (global.inputSystem->GetKey('S')) trans.position -= glm::vec3(0,1,0) * camSpeed;
-
+        /*
         if (global.inputSystem->GetMouseButtonDown(0)){
             auto worldpos = global.gameState->gameCamera->ScreenPositionToWorldSpace(global.inputSystem->mouseAxis);
             auto obj = global.gameState->ecs->NewObject();
@@ -118,6 +118,24 @@ int main(){
             obj->AddComponent<ECBoxCollider>();
             obj->AddComponent<ECSpriteRenderer>(tex);
         }
+        */
+
+        if (global.inputSystem->GetMouseButtonDown(0)){
+            auto worldpos = global.gameState->gameCamera->ScreenPositionToWorldSpace(global.inputSystem->mouseAxis);
+            GlobalCoord coord = PosToGlobalCoord(worldpos);
+            tilemapcomp->SetTile(coord, true);
+        }
+
+        // Lerp to Player Pos
+        Transform& trans = global.gameState->gameCamera->transform;
+        trans.position = glm::lerp(trans.position, 
+                                   playertrans->transform.position + glm::vec3(0,0,10), 
+                                   5.0f * time.deltaTime);
+
+        float dx = global.inputSystem->GetKey('A') ? -1.0f : (global.inputSystem->GetKey('D') ? 1.0 : 0);
+        float dy = global.inputSystem->GetKey('S') ? -1.0f : (global.inputSystem->GetKey('W') ? 1.0 : 0);
+        glm::vec3 movementVector = glm::vec3(dx, dy, 0) * (float)10.0;
+        playerrb->velocity = movementVector;
 
         global.gameState->ecs->Update();
         global.gameState->physicsManager->PhysicsUpdate();

@@ -16,6 +16,10 @@ struct ECBoxCollider : EntityComponent {
         this->dy = dy;
     }
 
+    void Init(){
+        global.gameState->ecs->physicsObjects.push_back(index);
+    }
+
     bool Intersect(ECBoxCollider* other){
         glm::vec3 pos      = base->GetComponent<ECTransform>(index)->transform.position;
         glm::vec3 otherpos = base->GetComponent<ECTransform>(other->index)->transform.position;

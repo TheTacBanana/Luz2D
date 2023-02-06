@@ -28,7 +28,7 @@ struct SpriteRenderer{
         void DrawSprite(Texture* texture, Transform& transform, glm::vec3 colour = glm::vec3(1.0)){
             spriteShader->use();
             
-            float aspect = (float)texture->width / texture->height;
+            float aspect = (float)texture->Width() / texture->Height();
             glm::mat4 prescale = glm::mat4(1.0);
             prescale = glm::scale(prescale, glm::vec3(aspect, 1, 0));
 
@@ -47,11 +47,11 @@ struct SpriteRenderer{
         }
 
     private:
+        unsigned int VBO;
         unsigned int quadVAO{};
 
         void InitRenderData(){
             // configure VAO/VBO
-            unsigned int VBO;
             float vertices[] = { 
                 // pos              // tex
                 -0.5f,  0.5f, 0.0f, 0.0f, 0.0f,

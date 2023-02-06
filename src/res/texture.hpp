@@ -13,8 +13,6 @@
 
 struct Texture{
     public:
-        int width{}, height{};
-
         Texture() = default;
 
         Texture(std::string texPath){
@@ -54,9 +52,18 @@ struct Texture{
             glBindTexture(GL_TEXTURE_2D, texID);
         }
 
+        int Width() const{
+            return width;
+        }
+
+        int Height() const{
+            return height;
+        }
+
     private:
         unsigned int texID{};
 
+        int width{}, height{};
 };
 
 #endif
