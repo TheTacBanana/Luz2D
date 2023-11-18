@@ -14,6 +14,7 @@
 #include "res/shader.hpp"
 #include "res/texture.hpp"
 #include "lib/glm/gtx/string_cast.hpp"
+#include "gui/uiroot.hpp"
 #include <vector>
 #include <map>
 
@@ -22,8 +23,6 @@
 #include "components/ecspriterenderer.hpp"
 #include "components/ecaabbcollider.hpp"
 #include "components/ectilemap.hpp"
-
-#include "types/spritesheet.hpp"
 
 Global global;
 
@@ -59,9 +58,11 @@ int main(){
             global.gameState = &gameState;
 
             ECS ecs;
+            UIRoot uiroot;
             PhysicsManager physicsManager;
             Camera camera;
             gameState.ecs = &ecs;
+            gameState.uiroot = &uiroot;
             gameState.physicsManager = &physicsManager;
             gameState.gameCamera = &camera;
 
@@ -80,7 +81,7 @@ int main(){
     //========================================================
     
     global.resourceLoader->LoadResource<Texture>("tex", "Textures/crate.png");
-    auto tex = global.resourceLoader->GetResource<Texture>("tex");
+    auto tex = global.resourceLoader->GetResource<Texture>("tex");  
 
     auto floor = global.gameState->ecs->NewObject();
     auto trans = floor->AddComponent<ECTransform>(glm::vec3(0, -5, 0));
@@ -95,38 +96,21 @@ int main(){
     player->AddComponent<ECBoxCollider>();
     player->AddComponent<ECSpriteRenderer>(tex);
 
-    auto spritesheet = new SpriteSheet(tex);
-    spritesheet->FixedSlice(8, 8);
-
     auto tilemap = global.gameState->ecs->NewObject();
     auto tilemaptrans = tilemap->AddComponent<ECTransform>(glm::vec3(0, 0, -1.0));
-    auto tilemapcomp = tilemap->AddComponent<ECTileMap>(spritesheet);
-
-    int index = 0;
+    auto tilemapcomp = tilemap->AddComponent<ECTileMap>();
     
     while (!global.platform->ShouldClose()){
         global.platform->StartFrame();
         
-        if (global.inputSystem->GetKeyDown(GLFW_KEY_ESCAPE)) global.platform->Terminate();
+        if (global.inputSystem->GetKeyDown(GLFW_KEY_ESCAPE)) global.platform->Terminate();  
         if (global.inputSystem->GetKeyDown(GLFW_KEY_F1)) global.platform->SetDisplayMode(Fullscreen);
         if (global.inputSystem->GetKeyDown(GLFW_KEY_F2)) global.platform->SetDisplayMode(Windowed);     
-
-        /*
-        if (global.inputSystem->GetMouseButtonDown(0)){
-            auto worldpos = global.gameState->gameCamera->ScreenPositionToWorldSpace(global.inputSystem->mouseAxis);
-            auto obj = global.gameState->ecs->NewObject();
-            obj->AddComponent<ECTransform>(worldpos);
-            obj->AddComponent<ECRigidbody>();
-            obj->AddComponent<ECBoxCollider>();
-            obj->AddComponent<ECSpriteRenderer>(tex);
-        }
-        */
 
         if (global.inputSystem->GetMouseButtonDown(0)){
             auto worldpos = global.gameState->gameCamera->ScreenPositionToWorldSpace(global.inputSystem->mouseAxis);
             GlobalCoord coord = PosToGlobalCoord(worldpos);
-            tilemapcomp->SetTile(coord, (*spritesheet)[index]);
-            index = (index + 1) % spritesheet->Size();
+            tilemapcomp->SetTile(coord, (*tex)["default"]);
         }
 
         // Lerp to Player Pos
@@ -143,7 +127,6 @@ int main(){
         global.gameState->ecs->Update();
         global.gameState->physicsManager->PhysicsUpdate();
         global.gameState->ecs->Render();
-
         global.platform->EndFrame();
     }
     global.platform->Cleanup();

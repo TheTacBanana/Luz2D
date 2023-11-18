@@ -9,10 +9,10 @@
 #include "../gfx/renderer.hpp"
 
 struct ECSpriteRenderer : EntityComponent {
-    Texture* tex{};
+    Texture* tex;
 
-    ECSpriteRenderer(Texture* tex){
-        this->tex = tex;
+    ECSpriteRenderer(Texture* texIn){
+        tex = texIn;
         global.gameState->ecs->renderEvent.Subscribe(this, &ECSpriteRenderer::Render);
     }
 

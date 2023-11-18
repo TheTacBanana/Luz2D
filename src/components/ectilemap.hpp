@@ -15,8 +15,6 @@
 
 #include "ectransform.hpp"
 
-#include "../types/spritesheet.hpp"
-
 struct TileData{
     bool filled {false};
     Sprite sprite;
@@ -97,6 +95,13 @@ struct ECTileMap : EntityComponent {
 
                 void SetTile(LocalCoord coord, Sprite sprite){
                     contents[coord.first + coord.second * CHUNK_WIDTH] = {true, sprite};
+                    if (canRender && sprite.texID != texID){
+                        std::cout << "[ Mismatched TileMap texID's" << texID << " " << sprite.texID <<" ]" << std::endl;
+                        exit(0);
+                    } else {
+                        texID = sprite.texID;
+                    }
+                        
                     GenerateChunkMesh();
                 }
 
@@ -107,6 +112,8 @@ struct ECTileMap : EntityComponent {
 
                 void Render(Shader* shader){
                     if (canRender){
+                        glBindTexture(GL_TEXTURE_2D, texID);
+
                         glm::mat4 transform = glm::mat4(1.0);
                         transform = glm::translate(transform, glm::vec3(coord.first * 16, coord.second * 16, 0));
                         shader->setMat4("chunktransform", transform);
@@ -118,6 +125,8 @@ struct ECTileMap : EntityComponent {
                 }
 
             private:
+                unsigned int texID;
+
                 std::vector<TileMapVertex> vertices{};
 
                 ChunkCoord coord{};
@@ -127,9 +136,7 @@ struct ECTileMap : EntityComponent {
                 std::array<TileData, CHUNK_WIDTH * CHUNK_HEIGHT> contents {false};
         };
 
-        ECTileMap(SpriteSheet* spriteSheet){
-            this->spriteSheet = spriteSheet;
-
+        ECTileMap(){
             global.gameState->ecs->renderEvent.Subscribe(this, &ECTileMap::Render);
 
             global.resourceLoader->LoadResource<Shader>("TileMapShader", "Shaders/tilemap.vs", "Shaders/tilemap.fs");
@@ -151,8 +158,6 @@ struct ECTileMap : EntityComponent {
         }
 
         void Render(){
-            spriteSheet->Bind();
-
             tileMapShader->use();
 
             auto transform = base->GetComponent<ECTransform>(index)->transform;
@@ -167,8 +172,6 @@ struct ECTileMap : EntityComponent {
         }
 
     private:
-        SpriteSheet* spriteSheet;
-
         Shader* tileMapShader {nullptr};
 
         std::map<ChunkCoord, TileMapChunk*> chunks;

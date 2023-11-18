@@ -25,10 +25,10 @@ struct SpriteRenderer{
             InitRenderData();
         }
 
-        void DrawSprite(Texture* texture, Transform& transform, glm::vec3 colour = glm::vec3(1.0)){
+        void DrawSprite(Texture* tex, Transform& transform, glm::vec3 colour = glm::vec3(1.0)){
             spriteShader->use();
             
-            float aspect = (float)texture->Width() / texture->Height();
+            float aspect = (float)tex->width / tex->height;
             glm::mat4 prescale = glm::mat4(1.0);
             prescale = glm::scale(prescale, glm::vec3(aspect, 1, 0));
 
@@ -39,7 +39,7 @@ struct SpriteRenderer{
             spriteShader->setVec3("spriteColour", colour);
 
             glActiveTexture(GL_TEXTURE0);
-            texture->Bind();
+            tex->Bind();
 
             glBindVertexArray(quadVAO);
             glDrawArrays(GL_TRIANGLES, 0, 6);

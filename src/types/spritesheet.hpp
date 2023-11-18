@@ -13,11 +13,7 @@
 #include <vector>
 #include <iostream>
 #include "../res/texture.hpp"
-
-struct Sprite{
-    glm::vec2 coordStart;
-    glm::vec2 coordEnd;
-};
+#include "sprite.hpp"
 
 struct SpriteSheet{
     public:
@@ -38,12 +34,10 @@ struct SpriteSheet{
             }
         }
 
-        //                                                       (Top Left)
         void SliceSpriteSheet(std::string identifier, glm::ivec2 coordStart, glm::ivec2 size){
             auto width = tex->Width();
             auto height = tex->Height();
 
-            //         (Bottom Right)
             glm::ivec2 coordEnd = coordStart + size;
 
             glm::vec2 startFloat = glm::vec2((float)coordStart.x / width, (float)coordStart.y / height);

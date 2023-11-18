@@ -4,16 +4,6 @@
 #include "componentmanager.hpp"
 #include "eventmanager.hpp"
 
-template <typename C, // Base Type 
-          typename I // Index Type
-          >
-struct ComponentBase{
-    C* base;
-    I index;  
-
-    virtual void Init(){};
-};
-
 using EntityID = std::uint32_t;
 struct ECS : ComponentManager<ECS,
                               EntityID,

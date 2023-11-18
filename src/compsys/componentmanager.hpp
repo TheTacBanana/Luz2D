@@ -5,6 +5,7 @@
 #include <vector>
 #include <bitset>
 #include <array>
+#include "componentbase.hpp"
 
 struct EmptyType{};
 
